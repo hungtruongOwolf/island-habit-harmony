@@ -50,6 +50,7 @@ export const GameWindow = () => (
       <RecapOverlay />
       <HistoryOverlay />
       <CheckInOverlay />
+      <ExpandOverlay />
       <ToastLayer />
     </div>
   </div>
