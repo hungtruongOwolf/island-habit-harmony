@@ -1,77 +1,38 @@
-import { MainIslandScreen } from "@/components/screens/MainIslandScreen";
-import { BuildMenuScreen } from "@/components/screens/BuildMenuScreen";
-import { AgentChatScreen } from "@/components/screens/AgentChatScreen";
-import { WeeklySummaryScreen } from "@/components/screens/WeeklySummaryScreen";
-import { CheckInScreen } from "@/components/screens/CheckInScreen";
-import { PhoneFrame } from "@/components/PhoneFrame";
+import { GameWindow } from "@/components/game/GameWindow";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="px-8 pt-12 pb-8 max-w-7xl mx-auto">
-        <div className="flex items-center gap-2 mb-3">
-          <span className="h-2 w-2 rounded-full bg-primary" />
-          <span className="text-[11px] font-extrabold uppercase tracking-[0.18em] text-muted-foreground">
-            Mobile UI · v1
-          </span>
+    <main className="min-h-screen bg-gradient-to-br from-[hsl(215_45%_14%)] via-[hsl(215_40%_18%)] to-[hsl(220_35%_22%)] p-4 md:p-8 flex flex-col items-center justify-center">
+      <header className="w-full max-w-[1600px] mb-4 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-2xl bg-progress-gradient flex items-center justify-center shadow-float">
+            <span className="text-white font-black text-lg">🏝️</span>
+          </div>
+          <div>
+            <h1 className="display-font text-xl md:text-2xl font-bold text-white tracking-tight">
+              Island of Habits
+            </h1>
+            <p className="text-[11px] text-white/60 font-semibold">Web client · co-op habit world</p>
+          </div>
         </div>
-        <h1 className="text-4xl md:text-5xl font-extrabold text-foreground tracking-tight">
-          Island of Habits
-        </h1>
-        <p className="text-base text-muted-foreground mt-2 max-w-xl">
-          In-game UI mockups wrapping the existing 3D island. Cozy pastels, frosted
-          glass over the world, generous spacing — built for friends, not metrics.
-        </p>
+        <div className="flex items-center gap-2">
+          <div className="hud-panel-dark px-3 py-1.5 text-[11px] font-bold flex items-center gap-2">
+            <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+            5 friends online
+          </div>
+          <button className="btn-game text-xs">Invite friends</button>
+        </div>
       </header>
 
-      {/* Phones row */}
-      <section className="px-6 pb-20 overflow-x-auto scrollbar-hide">
-        <div className="flex gap-10 min-w-max pb-6 px-2">
-          <PhoneFrame label="1 · Main Island" sublabel="Group HUD, agents, personal goals">
-            <MainIslandScreen />
-          </PhoneFrame>
-          <PhoneFrame label="2 · Build Menu" sublabel="Library + AI milestone monument">
-            <BuildMenuScreen />
-          </PhoneFrame>
-          <PhoneFrame label="3 · Agent Chat" sublabel="Personal AI companion">
-            <AgentChatScreen />
-          </PhoneFrame>
-          <PhoneFrame label="4 · Weekly Recap" sublabel="AI narrative + contributions">
-            <WeeklySummaryScreen />
-          </PhoneFrame>
-          <PhoneFrame label="5 · Check-in" sublabel="Mark goal complete + photo">
-            <CheckInScreen />
-          </PhoneFrame>
-        </div>
-      </section>
+      <div className="w-full max-w-[1600px]">
+        <GameWindow />
+      </div>
 
-      {/* Design system note */}
-      <section className="max-w-7xl mx-auto px-8 pb-20 grid md:grid-cols-3 gap-4">
-        <SystemCard
-          title="Palette"
-          body="Sky blue, sage green, warm cream, soft coral and honey accents. No harsh black or pure white."
-        />
-        <SystemCard
-          title="Cards & glass"
-          body="20px+ radius, soft warm shadows. Frosted glass over the 3D island so the world stays the hero."
-        />
-        <SystemCard
-          title="Stats"
-          body="Every icon paired with a text label. Currency, progress, and streak each get their own color tone."
-        />
-      </section>
-    </div>
+      <p className="text-white/40 text-[11px] mt-4 font-semibold">
+        Click any agent to chat · tap glowing slot to build · drag to rotate the island
+      </p>
+    </main>
   );
 };
-
-const SystemCard = ({ title, body }: { title: string; body: string }) => (
-  <div className="bg-card rounded-3xl p-5 border border-border/60 shadow-soft">
-    <p className="text-[10px] font-extrabold uppercase tracking-wider text-primary mb-1.5">
-      {title}
-    </p>
-    <p className="text-sm text-foreground leading-relaxed">{body}</p>
-  </div>
-);
 
 export default Index;
