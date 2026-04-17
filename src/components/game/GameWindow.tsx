@@ -15,7 +15,8 @@ import { ToastLayer } from "@/game/overlays/ToastLayer";
 
 export const GameWindow = () => (
   <div className="game-window w-full aspect-video relative">
-    <div className="absolute top-0 left-0 right-0 h-9 z-40 bg-gradient-to-b from-[hsl(215_30%_18%)] to-[hsl(215_32%_14%)] border-b border-white/5 flex items-center px-4 gap-2">
+    {/* Title bar chrome */}
+    <div className="absolute top-0 left-0 right-0 h-9 z-[5] bg-gradient-to-b from-[hsl(215_30%_18%)] to-[hsl(215_32%_14%)] border-b border-white/5 flex items-center px-4 gap-2">
       <div className="flex gap-1.5">
         <Circle className="h-3 w-3 fill-accent text-accent" />
         <Circle className="h-3 w-3 fill-honey text-honey" />
@@ -30,28 +31,48 @@ export const GameWindow = () => (
       <div className="text-white/50 text-[10px] font-bold">v1.0</div>
     </div>
 
+    {/* Content area below title bar */}
     <div className="absolute inset-0 top-9 overflow-hidden">
-      {/* 3D world — fills the canvas */}
-      <div className="absolute inset-0">
-        <Suspense fallback={<div className="h-full w-full bg-world flex items-center justify-center text-foreground font-bold">Loading island...</div>}>
+      {/* Layer 0 — 3D world canvas (lowest) */}
+      <div className="absolute inset-0 z-0">
+        <Suspense
+          fallback={
+            <div className="h-full w-full bg-world flex items-center justify-center text-foreground font-bold">
+              <div className="flex flex-col items-center gap-3">
+                <div className="h-12 w-12 rounded-full bg-progress-gradient animate-pulse flex items-center justify-center">
+                  <span className="text-white text-2xl">🏝️</span>
+                </div>
+                <span className="display-font text-lg">Loading island...</span>
+              </div>
+            </div>
+          }
+        >
           <Island3D />
         </Suspense>
       </div>
 
-      {/* HUD layers (above canvas) */}
-      <TopBar />
-      <QuestLog />
-      <AgentDock />
-      <ActionDock />
+      {/* Layer 1 — HUD panels (above canvas, below overlays) */}
+      <div className="absolute inset-0 z-10 pointer-events-none">
+        <TopBar />
+        <QuestLog />
+        <AgentDock />
+        <ActionDock />
+      </div>
 
-      {/* Overlays */}
-      <BuildOverlay />
-      <ChatOverlay />
-      <RecapOverlay />
-      <HistoryOverlay />
-      <CheckInOverlay />
-      <ExpandOverlay />
-      <ToastLayer />
+      {/* Layer 2 — Modal overlays (highest, above EVERYTHING) */}
+      <div className="absolute inset-0 z-[100]" style={{ isolation: "isolate" }}>
+        <BuildOverlay />
+        <ChatOverlay />
+        <RecapOverlay />
+        <HistoryOverlay />
+        <CheckInOverlay />
+        <ExpandOverlay />
+      </div>
+
+      {/* Layer 3 — Toast notifications (topmost) */}
+      <div className="absolute inset-0 z-[200] pointer-events-none">
+        <ToastLayer />
+      </div>
     </div>
   </div>
 );
