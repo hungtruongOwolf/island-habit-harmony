@@ -60,7 +60,7 @@ export const GameWindow = () => (
       </div>
 
       {/* Layer 2 — Modal overlays (highest, above EVERYTHING) */}
-      <div className="absolute inset-0 z-[100]" style={{ isolation: "isolate" }}>
+      <div className="absolute inset-0 z-[100] pointer-events-none" style={{ isolation: "isolate" }}>
         <BuildOverlay />
         <ChatOverlay />
         <RecapOverlay />
