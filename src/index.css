@@ -1,95 +1,80 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* Island of Habits — cozy pastel design system. All colors HSL. */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Sky / cream foundations */
+    --background: 200 60% 96%;
+    --foreground: 215 35% 22%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 40 50% 98%;
+    --card-foreground: 215 35% 22%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 40 50% 98%;
+    --popover-foreground: 215 35% 22%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Sage green — primary / progress */
+    --primary: 145 35% 55%;
+    --primary-foreground: 145 50% 16%;
+    --primary-soft: 145 45% 88%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Sky blue — secondary */
+    --secondary: 205 75% 80%;
+    --secondary-foreground: 210 50% 22%;
+    --secondary-soft: 205 80% 92%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 200 35% 92%;
+    --muted-foreground: 215 18% 50%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Coral accent */
+    --accent: 8 80% 72%;
+    --accent-foreground: 8 60% 22%;
+    --accent-soft: 8 80% 94%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    /* Honey / currency */
+    --honey: 38 90% 62%;
+    --honey-foreground: 30 60% 20%;
+    --honey-soft: 40 90% 92%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    /* Lavender / streak */
+    --lavender: 265 55% 75%;
+    --lavender-soft: 265 70% 94%;
 
-    --radius: 0.5rem;
+    --destructive: 0 70% 65%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 200 30% 88%;
+    --input: 200 30% 88%;
+    --ring: 145 35% 55%;
+
+    --radius: 1.25rem;
+
+    /* Sky gradient behind the island */
+    --gradient-sky: linear-gradient(180deg, hsl(205 85% 86%) 0%, hsl(195 70% 92%) 60%, hsl(40 60% 96%) 100%);
+    --gradient-sunset: linear-gradient(180deg, hsl(20 80% 88%) 0%, hsl(330 70% 90%) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(0 0% 100% / 0.85) 0%, hsl(40 50% 98% / 0.7) 100%);
+    --gradient-progress: linear-gradient(90deg, hsl(145 50% 60%), hsl(160 55% 55%));
+    --gradient-honey: linear-gradient(135deg, hsl(45 95% 65%), hsl(30 90% 60%));
+    --gradient-coral: linear-gradient(135deg, hsl(12 85% 72%), hsl(345 75% 75%));
+
+    /* Shadows — soft, warm */
+    --shadow-soft: 0 4px 16px -4px hsl(215 35% 30% / 0.08), 0 2px 6px -2px hsl(215 35% 30% / 0.05);
+    --shadow-float: 0 12px 32px -8px hsl(215 40% 30% / 0.18), 0 4px 12px -4px hsl(215 40% 30% / 0.1);
+    --shadow-glass: 0 8px 24px -6px hsl(215 35% 25% / 0.12), inset 0 1px 0 0 hsl(0 0% 100% / 0.6);
+    --shadow-phone: 0 40px 80px -20px hsl(215 50% 30% / 0.35), 0 20px 40px -10px hsl(215 40% 30% / 0.2);
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
@@ -99,7 +84,74 @@ All colors MUST be HSL.
     @apply border-border;
   }
 
+  html, body {
+    font-family: 'Nunito', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
   body {
     @apply bg-background text-foreground;
   }
+}
+
+@layer components {
+  /* Frosted glass card — used over the island render */
+  .glass {
+    background: hsl(0 0% 100% / 0.72);
+    backdrop-filter: blur(16px) saturate(140%);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    border: 1px solid hsl(0 0% 100% / 0.7);
+    box-shadow: var(--shadow-glass);
+  }
+
+  .glass-dark {
+    background: hsl(215 40% 20% / 0.55);
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    border: 1px solid hsl(0 0% 100% / 0.18);
+    color: hsl(0 0% 100%);
+  }
+
+  /* iPhone frame */
+  .phone-frame {
+    width: 360px;
+    height: 760px;
+    border-radius: 56px;
+    background: hsl(215 30% 12%);
+    padding: 12px;
+    box-shadow: var(--shadow-phone);
+    position: relative;
+    flex-shrink: 0;
+  }
+  .phone-screen {
+    width: 100%;
+    height: 100%;
+    border-radius: 44px;
+    overflow: hidden;
+    position: relative;
+    background: hsl(var(--background));
+  }
+  .phone-notch {
+    position: absolute;
+    top: 22px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 110px;
+    height: 30px;
+    border-radius: 18px;
+    background: hsl(215 30% 12%);
+    z-index: 50;
+  }
+}
+
+@layer utilities {
+  .bg-sky-gradient { background: var(--gradient-sky); }
+  .bg-sunset { background: var(--gradient-sunset); }
+  .bg-honey-gradient { background: var(--gradient-honey); }
+  .bg-coral-gradient { background: var(--gradient-coral); }
+  .bg-progress-gradient { background: var(--gradient-progress); }
+  .shadow-soft { box-shadow: var(--shadow-soft); }
+  .shadow-float { box-shadow: var(--shadow-float); }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  .scrollbar-hide { scrollbar-width: none; }
 }
