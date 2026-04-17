@@ -1,149 +1,84 @@
-import { useContext, useRef, useMemo } from "react";
-import { Canvas, useFrame, ThreeEvent } from "@react-three/fiber";
-import { OrbitControls, Sky, Cloud, Clouds, Html } from "@react-three/drei";
+import { useContext, useRef } from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { OrbitControls, Sky, Cloud, Clouds } from "@react-three/drei";
 import * as THREE from "three";
 import { useGame, GameCtx } from "../state";
 import { Building3D } from "./Building3D";
 import { Agent3D } from "./Agent3D";
-
-const ISLAND_RADIUS = 3.6;
-const WAYPOINTS: [number, number][] = [
-  [-2.5, -0.5], [2.0, 1.5], [-0.8, -2.2], [0.0, 0.0], [2.2, -1.6],
-  [-1.5, 1.8], [1.0, -2.5], [-2.0, 1.0], [2.5, -0.2], [0.5, 2.5],
-];
-
-// Empty build slots — clickable circles
-const BUILD_SLOTS: [number, number][] = [
-  [-1.5, -1.5], [1.6, 0.5], [-0.5, 1.5], [1.0, 2.2],
-];
-
-const Terrain = () => (
-  <group>
-    {/* Underwater base — large dark cylinder */}
-    <mesh position={[0, -1.5, 0]} receiveShadow>
-      <cylinderGeometry args={[ISLAND_RADIUS - 0.4, ISLAND_RADIUS - 1.2, 1.5, 32]} />
-      <meshStandardMaterial color="#5A4A38" />
-    </mesh>
-    {/* Sand ring */}
-    <mesh position={[0, -0.55, 0]} receiveShadow>
-      <cylinderGeometry args={[ISLAND_RADIUS, ISLAND_RADIUS - 0.3, 0.5, 48]} />
-      <meshStandardMaterial color="#EFD9A8" />
-    </mesh>
-    {/* Grass top */}
-    <mesh position={[0, -0.25, 0]} receiveShadow>
-      <cylinderGeometry args={[ISLAND_RADIUS - 0.3, ISLAND_RADIUS - 0.1, 0.15, 48]} />
-      <meshStandardMaterial color="#7AB85A" />
-    </mesh>
-    {/* Grass detail bumps */}
-    {Array.from({ length: 18 }).map((_, i) => {
-      const a = (i / 18) * Math.PI * 2;
-      const r = (ISLAND_RADIUS - 0.5) * (0.4 + Math.random() * 0.6);
-      return (
-        <mesh key={i} position={[Math.cos(a) * r, -0.12, Math.sin(a) * r]}>
-          <sphereGeometry args={[0.12 + Math.random() * 0.1, 6, 6]} />
-          <meshStandardMaterial color="#6FA84A" />
-        </mesh>
-      );
-    })}
-    {/* Trees */}
-    {[[2.7, 1.8], [-2.8, -1.5], [-2.5, 2.2], [2.5, -2.4], [0.0, -2.8]].map(([x, z], i) => (
-      <group key={i} position={[x, 0, z]}>
-        <mesh position={[0, 0.25, 0]} castShadow>
-          <cylinderGeometry args={[0.08, 0.1, 0.5, 6]} />
-          <meshStandardMaterial color="#6B4226" />
-        </mesh>
-        <mesh position={[0, 0.7, 0]} castShadow>
-          <coneGeometry args={[0.4, 0.7, 8]} />
-          <meshStandardMaterial color="#3F7A3F" />
-        </mesh>
-        <mesh position={[0, 1.05, 0]} castShadow>
-          <coneGeometry args={[0.3, 0.5, 8]} />
-          <meshStandardMaterial color="#4A8A4A" />
-        </mesh>
-      </group>
-    ))}
-    {/* Rocks */}
-    {[[2.9, 0.0], [-2.9, 0.5], [0.5, 2.9]].map(([x, z], i) => (
-      <mesh key={i} position={[x, -0.15, z]} rotation={[Math.random(), Math.random(), Math.random()]}>
-        <dodecahedronGeometry args={[0.18 + i * 0.05, 0]} />
-        <meshStandardMaterial color="#8A8B85" flatShading />
-      </mesh>
-    ))}
-  </group>
-);
+import { SceneryRenderer, GrassTuft } from "./Scenery3D";
+import { DistrictsRenderer } from "./Districts3D";
+import { PlacementGhost } from "./PlacementGhost";
 
 const Water = () => {
   const ref = useRef<THREE.Mesh>(null);
   useFrame(({ clock }) => {
     if (ref.current) {
       const m = ref.current.material as THREE.MeshStandardMaterial;
-      m.opacity = 0.55 + Math.sin(clock.elapsedTime * 0.8) * 0.05;
+      m.opacity = 0.6 + Math.sin(clock.elapsedTime * 0.8) * 0.05;
     }
   });
   return (
-    <mesh ref={ref} position={[0, -0.7, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-      <circleGeometry args={[18, 64]} />
-      <meshStandardMaterial color="#5BA3D0" transparent opacity={0.6} metalness={0.3} roughness={0.2} />
-    </mesh>
+    <>
+      <mesh ref={ref} position={[0, -0.7, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+        <circleGeometry args={[30, 64]} />
+        <meshStandardMaterial color="#4F95C4" transparent opacity={0.65} metalness={0.4} roughness={0.15} />
+      </mesh>
+      {/* Deeper water below */}
+      <mesh position={[0, -0.95, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <circleGeometry args={[30, 64]} />
+        <meshStandardMaterial color="#2D5878" />
+      </mesh>
+    </>
   );
 };
 
-const BuildSlot = ({ pos }: { pos: [number, number] }) => {
-  const ref = useRef<THREE.Mesh>(null);
-  const { setPendingSlot, setScreen } = useGame();
-
-  useFrame(({ clock }) => {
-    if (ref.current) {
-      const s = 1 + Math.sin(clock.elapsedTime * 2) * 0.15;
-      ref.current.scale.set(s, 1, s);
-    }
+// Random grass tufts on the main island
+const GrassDecor = () => {
+  const tufts = Array.from({ length: 30 }).map((_, i) => {
+    const a = (i / 30) * Math.PI * 2 + Math.random();
+    const r = Math.random() * 2.8;
+    return [Math.cos(a) * r, Math.sin(a) * r] as [number, number];
   });
-
-  const handleClick = (e: ThreeEvent<MouseEvent>) => {
-    e.stopPropagation();
-    setPendingSlot(pos);
-    setScreen("build");
-  };
-
-  return (
-    <group position={[pos[0], -0.15, pos[1]]} onClick={handleClick}
-           onPointerOver={(e) => { e.stopPropagation(); document.body.style.cursor = "pointer"; }}
-           onPointerOut={() => { document.body.style.cursor = "default"; }}>
-      <mesh ref={ref} rotation={[-Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[0.25, 0.38, 24]} />
-        <meshBasicMaterial color="#7AC5A0" transparent opacity={0.7} side={THREE.DoubleSide} />
-      </mesh>
-      <mesh position={[0, 0.05, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <circleGeometry args={[0.25, 24]} />
-        <meshBasicMaterial color="#7AC5A0" transparent opacity={0.25} />
-      </mesh>
-      <Html position={[0, 0.5, 0]} center distanceFactor={8}>
-        <div className="text-xl pointer-events-none animate-bounce">🔨</div>
-      </Html>
-    </group>
-  );
+  return <>{tufts.map((p, i) => <GrassTuft key={i} pos={p} />)}</>;
 };
+
+// Build slot hint ring on agent waypoints — purely cosmetic
+const WAYPOINTS: [number, number][] = [
+  [-2.0, -0.5], [1.8, 1.4], [-0.7, -2.0], [0, 0], [2.2, -1.7],
+  [-1.5, 1.8], [1.0, -2.5], [-2.5, 1.0], [2.5, -0.2], [0.5, 2.5],
+];
 
 const Scene = () => {
-  const { agents, buildings, selectedAgent, setSelectedAgent, setScreen } = useGame();
+  const { agents, buildings, scenery, selectedAgent, setSelectedAgent, setScreen, placingType } = useGame();
 
   return (
     <>
-      <Sky sunPosition={[5, 3, 2]} turbidity={2} rayleigh={1} mieCoefficient={0.005} mieDirectionalG={0.8} />
-      <ambientLight intensity={0.6} />
-      <directionalLight position={[5, 8, 4]} intensity={1.2} castShadow shadow-mapSize={[1024, 1024]} />
-      <hemisphereLight args={["#87CEEB", "#7AB85A", 0.4]} />
+      <Sky sunPosition={[8, 4, 3]} turbidity={2} rayleigh={1} mieCoefficient={0.005} mieDirectionalG={0.85} />
+      <ambientLight intensity={0.55} />
+      <directionalLight
+        position={[6, 10, 5]}
+        intensity={1.3}
+        castShadow
+        shadow-mapSize={[2048, 2048]}
+        shadow-camera-left={-15}
+        shadow-camera-right={15}
+        shadow-camera-top={15}
+        shadow-camera-bottom={-15}
+      />
+      <hemisphereLight args={["#9DD4F0", "#7AB85A", 0.45]} />
 
       <Clouds material={THREE.MeshBasicMaterial}>
-        <Cloud segments={20} bounds={[3, 1, 1]} volume={2} color="#ffffff" position={[-4, 4, -3]} opacity={0.7} />
-        <Cloud segments={15} bounds={[2, 0.8, 1]} volume={1.5} color="#ffffff" position={[5, 5, 2]} opacity={0.6} />
+        <Cloud segments={20} bounds={[3, 1, 1]} volume={2} color="#ffffff" position={[-5, 5, -3]} opacity={0.65} />
+        <Cloud segments={15} bounds={[2, 0.8, 1]} volume={1.5} color="#ffffff" position={[6, 6, 2]} opacity={0.55} />
+        <Cloud segments={18} bounds={[2.5, 0.9, 1]} volume={1.8} color="#ffffff" position={[0, 5.5, -6]} opacity={0.6} />
       </Clouds>
 
       <Water />
-      <Terrain />
+      <DistrictsRenderer />
+      <GrassDecor />
+      <SceneryRenderer scenery={scenery} />
 
       {buildings.map((b) => <Building3D key={b.id} building={b} />)}
-      {BUILD_SLOTS.map((p, i) => <BuildSlot key={i} pos={p} />)}
 
       {agents.map((a) => (
         <Agent3D
@@ -151,9 +86,15 @@ const Scene = () => {
           agent={a}
           waypoints={WAYPOINTS}
           isSelected={selectedAgent === a.id}
-          onClick={() => { setSelectedAgent(a.id); setScreen("chat"); }}
+          onClick={() => {
+            if (placingType) return; // don't open chat while placing
+            setSelectedAgent(a.id);
+            setScreen("chat");
+          }}
         />
       ))}
+
+      {placingType && <PlacementGhost />}
     </>
   );
 };
@@ -163,7 +104,7 @@ export const Island3D = () => {
   return (
     <Canvas
       shadows
-      camera={{ position: [6, 5, 6], fov: 45 }}
+      camera={{ position: [8, 6, 8], fov: 45 }}
       gl={{ antialias: true }}
     >
       <GameCtx.Provider value={game}>
@@ -171,12 +112,12 @@ export const Island3D = () => {
         <OrbitControls
           enablePan={false}
           minDistance={5}
-          maxDistance={14}
+          maxDistance={20}
           minPolarAngle={Math.PI / 6}
           maxPolarAngle={Math.PI / 2.2}
           target={[0, 0, 0]}
           autoRotate
-          autoRotateSpeed={0.4}
+          autoRotateSpeed={0.3}
         />
       </GameCtx.Provider>
     </Canvas>

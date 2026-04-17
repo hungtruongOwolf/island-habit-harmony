@@ -10,6 +10,7 @@ import { ChatOverlay } from "@/game/overlays/ChatOverlay";
 import { RecapOverlay } from "@/game/overlays/RecapOverlay";
 import { HistoryOverlay } from "@/game/overlays/HistoryOverlay";
 import { CheckInOverlay } from "@/game/overlays/CheckInOverlay";
+import { ExpandOverlay } from "@/game/overlays/ExpandOverlay";
 import { ToastLayer } from "@/game/overlays/ToastLayer";
 
 export const GameWindow = () => (
@@ -49,6 +50,7 @@ export const GameWindow = () => (
       <RecapOverlay />
       <HistoryOverlay />
       <CheckInOverlay />
+      <ExpandOverlay />
       <ToastLayer />
     </div>
   </div>
