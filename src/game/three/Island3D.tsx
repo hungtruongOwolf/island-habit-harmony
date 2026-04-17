@@ -1,8 +1,8 @@
-import { useRef, useMemo } from "react";
+import { useContext, useRef, useMemo } from "react";
 import { Canvas, useFrame, ThreeEvent } from "@react-three/fiber";
 import { OrbitControls, Sky, Cloud, Clouds, Html } from "@react-three/drei";
 import * as THREE from "three";
-import { useGame } from "../state";
+import { useGame, GameCtx } from "../state";
 import { Building3D } from "./Building3D";
 import { Agent3D } from "./Agent3D";
 
