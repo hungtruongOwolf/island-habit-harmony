@@ -1,5 +1,4 @@
 import { useMemo } from "react";
-import * as THREE from "three";
 import type { Scenery } from "../state";
 
 /* ── Pine tree — layered, organic ────────────────────── */
