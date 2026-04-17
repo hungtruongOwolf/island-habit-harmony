@@ -1,5 +1,5 @@
 import { Home, Hammer, BarChart3, Clock, MessageCircle, Coins, Flame, TrendingUp, Camera, Check, Circle, Wifi as WifiIcon } from "lucide-react";
-import { StatusBar } from "./StatusBar";
+import { StatusBar } from "../StatusBar";
 import island from "@/assets/island.png";
 import a1 from "@/assets/agent-1.png";
 import a2 from "@/assets/agent-2.png";
