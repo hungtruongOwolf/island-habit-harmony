@@ -96,7 +96,8 @@ interface GameState {
   showToast: (msg: string) => void;
 }
 
-const Ctx = createContext<GameState | null>(null);
+export const GameCtx = createContext<GameState | null>(null);
+const Ctx = GameCtx;
 
 const initialAgents: Agent[] = [
   { id: "sofia",  name: "Sofia",  img: a5, color: "#7AC5A0", hat: "#E58F7B", mood: 76, line: "Hydrating!",            goal: "2L water",  online: true,  isYou: true,  home: [ 0.5, -1.2] },
