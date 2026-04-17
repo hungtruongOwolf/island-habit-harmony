@@ -6,113 +6,174 @@ import a4 from "@/assets/agent-4.png";
 import a5 from "@/assets/agent-5.png";
 
 export type AgentId = "kael" | "theo" | "mei" | "jordan" | "sofia";
-export type ScreenId = "island" | "build" | "chat" | "recap" | "history" | "checkin" | null;
+export type ScreenId = "island" | "build" | "chat" | "recap" | "history" | "checkin" | "expand" | null;
+export type BuildingType = "house" | "garden" | "library" | "gym" | "lighthouse" | "fountain" | "bonfire" | "cabin" | "dock" | "shrine";
+export type DistrictId = "main" | "forest" | "beach" | "hill";
 
 export interface Agent {
   id: AgentId;
   name: string;
   img: string;
-  color: string;       // hsl primary color of avatar (capsule body)
-  hat: string;         // accent hat color
-  mood: number;        // 0-100
+  skin: string;
+  shirt: string;
+  pants: string;
+  hair: string;
+  hairStyle: "short" | "long" | "bun" | "cap";
+  mood: number;
   line: string;
   goal: string;
   online: boolean;
   isYou?: boolean;
-  // 3D position [x,z]
   home: [number, number];
 }
 
 export interface Building {
   id: string;
-  type: "house" | "garden" | "library" | "gym" | "lighthouse" | "fountain" | "bonfire";
+  type: BuildingType;
   pos: [number, number];
   rot?: number;
-  color?: string;
+  district: DistrictId;
+  score?: number;
 }
 
 export interface BuildOption {
-  type: Building["type"];
+  type: BuildingType;
   name: string;
   cost: number;
-  size: string;
+  radius: number;        // footprint radius in world units
   emoji: string;
+  district: DistrictId;
   locked?: string | null;
+  // Islanders-style placement scoring
+  rules: {
+    likes?: { type: BuildingType | "tree" | "rock" | "water" | "flower"; range: number; pts: number }[];
+    dislikes?: { type: BuildingType | "tree" | "rock" | "water" | "flower"; range: number; pts: number }[];
+  };
 }
 
 export const BUILD_LIBRARY: BuildOption[] = [
-  { type: "house",      name: "Cottage",     cost: 120, size: "2x2", emoji: "🏠" },
-  { type: "garden",     name: "Garden",      cost: 80,  size: "1x1", emoji: "🌷" },
-  { type: "library",    name: "Library",     cost: 240, size: "2x3", emoji: "📚" },
-  { type: "gym",        name: "Gym hut",     cost: 200, size: "2x2", emoji: "🏋️" },
-  { type: "fountain",   name: "Fountain",    cost: 160, size: "2x2", emoji: "⛲" },
-  { type: "bonfire",    name: "Bonfire",     cost: 60,  size: "1x1", emoji: "🔥" },
-  { type: "lighthouse", name: "Lighthouse",  cost: 800, size: "2x2", emoji: "🗼", locked: "Reach Lv.15" },
+  { type: "house", name: "Cottage", cost: 120, radius: 0.55, emoji: "🏠", district: "main",
+    rules: { likes: [{ type: "tree", range: 1.5, pts: 2 }, { type: "fountain", range: 2, pts: 4 }, { type: "garden", range: 1.5, pts: 3 }],
+             dislikes: [{ type: "gym", range: 1.5, pts: -3 }, { type: "bonfire", range: 1.2, pts: -2 }] } },
+  { type: "garden", name: "Garden", cost: 80, radius: 0.4, emoji: "🌷", district: "main",
+    rules: { likes: [{ type: "house", range: 1.5, pts: 3 }, { type: "fountain", range: 2, pts: 5 }, { type: "tree", range: 1.5, pts: 2 }] } },
+  { type: "library", name: "Library", cost: 240, radius: 0.7, emoji: "📚", district: "main",
+    rules: { likes: [{ type: "tree", range: 2, pts: 3 }, { type: "garden", range: 2, pts: 4 }],
+             dislikes: [{ type: "gym", range: 2, pts: -5 }, { type: "bonfire", range: 1.5, pts: -3 }] } },
+  { type: "gym", name: "Gym hut", cost: 200, radius: 0.6, emoji: "🏋️", district: "main",
+    rules: { likes: [{ type: "fountain", range: 2, pts: 3 }, { type: "rock", range: 1.5, pts: 2 }],
+             dislikes: [{ type: "house", range: 1.5, pts: -3 }, { type: "library", range: 2, pts: -5 }] } },
+  { type: "fountain", name: "Fountain", cost: 160, radius: 0.55, emoji: "⛲", district: "main",
+    rules: { likes: [{ type: "house", range: 2, pts: 3 }, { type: "garden", range: 2, pts: 5 }, { type: "library", range: 2, pts: 3 }] } },
+  { type: "bonfire", name: "Bonfire", cost: 60, radius: 0.4, emoji: "🔥", district: "main",
+    rules: { likes: [{ type: "tree", range: 2, pts: 1 }],
+             dislikes: [{ type: "house", range: 1.2, pts: -2 }, { type: "library", range: 1.5, pts: -3 }] } },
+  { type: "lighthouse", name: "Lighthouse", cost: 800, radius: 0.7, emoji: "🗼", district: "beach", locked: "Reach Lv.15",
+    rules: { likes: [{ type: "water", range: 3, pts: 8 }, { type: "dock", range: 2.5, pts: 4 }] } },
+  { type: "cabin", name: "Forest cabin", cost: 180, radius: 0.55, emoji: "🛖", district: "forest",
+    rules: { likes: [{ type: "tree", range: 1.5, pts: 4 }, { type: "cabin", range: 2.5, pts: 2 }] } },
+  { type: "dock", name: "Wooden dock", cost: 140, radius: 0.6, emoji: "⚓", district: "beach",
+    rules: { likes: [{ type: "water", range: 2, pts: 6 }] } },
+  { type: "shrine", name: "Hill shrine", cost: 320, radius: 0.55, emoji: "⛩️", district: "hill",
+    rules: { likes: [{ type: "tree", range: 2, pts: 3 }, { type: "rock", range: 2, pts: 3 }] } },
 ];
 
-export interface Goal {
-  id: string;
-  text: string;
-  done: boolean;
-  reward: number;
-  photo?: boolean;
+export interface District {
+  id: DistrictId;
+  name: string;
+  emoji: string;
+  unlocked: boolean;
+  unlockCost: number;
+  unlockLevel: number;
+  // World position of district center
+  center: [number, number];
+  radius: number;
+  color: string;
+  description: string;
 }
 
-export interface ChatMsg {
-  from: "agent" | "you";
-  text: string;
-  ts: number;
-}
+export const DISTRICTS: District[] = [
+  { id: "main",   name: "Pine Hollow",     emoji: "🏝️", unlocked: true,  unlockCost: 0,    unlockLevel: 0,  center: [0, 0],     radius: 3.6, color: "#7AB85A", description: "Your starting island — grass and gentle hills." },
+  { id: "forest", name: "Whispering Wood", emoji: "🌲", unlocked: false, unlockCost: 600,  unlockLevel: 12, center: [-6, -1],   radius: 2.6, color: "#3F7A3F", description: "Dense pines & moss. Unlocks forest cabins." },
+  { id: "beach",  name: "Coral Cove",      emoji: "🏖️", unlocked: false, unlockCost: 900,  unlockLevel: 14, center: [5.5, 1.5], radius: 2.8, color: "#EFD9A8", description: "Warm sand & shallow water. Unlocks docks & lighthouse." },
+  { id: "hill",   name: "Stoneview Peak",  emoji: "⛰️", unlocked: false, unlockCost: 1400, unlockLevel: 16, center: [1, 6],     radius: 2.4, color: "#9B8E7E", description: "Rocky highland with old shrines." },
+];
+
+export interface Goal { id: string; text: string; done: boolean; reward: number; photo?: boolean; }
+export interface ChatMsg { from: "agent" | "you"; text: string; ts: number; }
+
+// ── Decoration scenery (trees/rocks/flowers) — used for placement scoring ──
+export interface Scenery { id: string; type: "tree" | "rock" | "flower"; pos: [number, number]; district: DistrictId; variant: number; }
 
 interface GameState {
   screen: ScreenId;
   setScreen: (s: ScreenId) => void;
-
   selectedAgent: AgentId;
   setSelectedAgent: (id: AgentId) => void;
-
   coins: number;
   streak: number;
   level: number;
-  xp: number; // 0-100 toward next
-
+  xp: number;
   agents: Agent[];
   buildings: Building[];
+  scenery: Scenery[];
+  districts: District[];
   goals: Goal[];
 
-  // build flow
-  pendingSlot: [number, number] | null;
-  setPendingSlot: (s: [number, number] | null) => void;
-  placeBuilding: (type: Building["type"]) => boolean;
+  // Free-placement build flow
+  placingType: BuildingType | null;
+  setPlacingType: (t: BuildingType | null) => void;
+  placeBuildingAt: (pos: [number, number], rot?: number) => boolean;
+  cancelPlacing: () => void;
+
+  // Districts
+  unlockDistrict: (id: DistrictId) => boolean;
 
   completeGoal: (id: string) => void;
   pendingCheckIn: Goal | null;
   setPendingCheckIn: (g: Goal | null) => void;
-
   chats: Record<AgentId, ChatMsg[]>;
   sendChat: (id: AgentId, text: string) => void;
-
   toast: string | null;
   showToast: (msg: string) => void;
 }
 
-export const GameCtx = createContext<GameState | null>(null);
-const Ctx = GameCtx;
+const Ctx = createContext<GameState | null>(null);
+export const GameCtx = Ctx;
 
 const initialAgents: Agent[] = [
-  { id: "sofia",  name: "Sofia",  img: a5, color: "#7AC5A0", hat: "#E58F7B", mood: 76, line: "Hydrating!",            goal: "2L water",  online: true,  isYou: true,  home: [ 0.5, -1.2] },
-  { id: "kael",   name: "Kael",   img: a1, color: "#6FA8DC", hat: "#F2C46C", mood: 84, line: "Let's lift today!",    goal: "Gym 45m",   online: true,                home: [-2.5, -0.5] },
-  { id: "theo",   name: "Theo",   img: a2, color: "#C9A0E0", hat: "#7AC5A0", mood: 62, line: "Reading slowly...",    goal: "Read 15p",  online: true,                home: [ 2.0,  1.5] },
-  { id: "mei",    name: "Mei",    img: a3, color: "#E58F7B", hat: "#6FA8DC", mood: 41, line: "Need a walk.",         goal: "Walk 20m",  online: false,               home: [-1.0,  2.0] },
-  { id: "jordan", name: "Jordan", img: a4, color: "#F2C46C", hat: "#C9A0E0", mood: 91, line: "On a roll!",           goal: "Sleep 8h",  online: true,                home: [ 1.5, -2.0] },
+  { id: "sofia",  name: "Sofia",  img: a5, skin: "#F4D7B5", shirt: "#7AC5A0", pants: "#3A4A6B", hair: "#3B2820", hairStyle: "long",  mood: 76, line: "Hydrating!",         goal: "2L water", online: true, isYou: true, home: [ 0.5, -1.2] },
+  { id: "kael",   name: "Kael",   img: a1, skin: "#E8C29A", shirt: "#6FA8DC", pants: "#2A3550", hair: "#1F1410", hairStyle: "cap",   mood: 84, line: "Let's lift today!", goal: "Gym 45m",  online: true,              home: [-2.5, -0.5] },
+  { id: "theo",   name: "Theo",   img: a2, skin: "#F4D7B5", shirt: "#C9A0E0", pants: "#5A4030", hair: "#5A3820", hairStyle: "short", mood: 62, line: "Reading slowly...", goal: "Read 15p", online: true,              home: [ 2.0,  1.5] },
+  { id: "mei",    name: "Mei",    img: a3, skin: "#EFC9A0", shirt: "#E58F7B", pants: "#3A2A40", hair: "#0F0A08", hairStyle: "bun",   mood: 41, line: "Need a walk.",      goal: "Walk 20m", online: false,             home: [-1.0,  2.0] },
+  { id: "jordan", name: "Jordan", img: a4, skin: "#D9A878", shirt: "#F2C46C", pants: "#3A2A1A", hair: "#2A1810", hairStyle: "short", mood: 91, line: "On a roll!",        goal: "Sleep 8h", online: true,              home: [ 1.5, -2.0] },
 ];
 
 const initialBuildings: Building[] = [
-  { id: "b1", type: "house",    pos: [-2.5, -0.5] },
-  { id: "b2", type: "house",    pos: [ 2.0,  1.5], rot: 0.4 },
-  { id: "b3", type: "garden",   pos: [-0.8, -2.2] },
-  { id: "b4", type: "fountain", pos: [ 0.0,  0.0] },
-  { id: "b5", type: "bonfire",  pos: [ 2.2, -1.6] },
+  { id: "b1", type: "house",    pos: [-2.0, -0.5], district: "main" },
+  { id: "b2", type: "house",    pos: [ 1.8,  1.4], district: "main", rot: 0.4 },
+  { id: "b3", type: "garden",   pos: [-0.7, -2.0], district: "main" },
+  { id: "b4", type: "fountain", pos: [ 0.0,  0.0], district: "main" },
+  { id: "b5", type: "bonfire",  pos: [ 2.2, -1.7], district: "main" },
+];
+
+// Pre-seeded scenery for the main island & previewing districts
+const initialScenery: Scenery[] = [
+  // main island trees
+  { id: "t1", type: "tree", pos: [ 2.7,  1.9], district: "main", variant: 0 },
+  { id: "t2", type: "tree", pos: [-2.8, -1.4], district: "main", variant: 1 },
+  { id: "t3", type: "tree", pos: [-2.5,  2.2], district: "main", variant: 0 },
+  { id: "t4", type: "tree", pos: [ 2.5, -2.4], district: "main", variant: 2 },
+  { id: "t5", type: "tree", pos: [ 0.3, -2.8], district: "main", variant: 1 },
+  { id: "t6", type: "tree", pos: [-0.3,  2.7], district: "main", variant: 0 },
+  // rocks
+  { id: "r1", type: "rock", pos: [ 2.9,  0.0], district: "main", variant: 0 },
+  { id: "r2", type: "rock", pos: [-2.9,  0.6], district: "main", variant: 1 },
+  { id: "r3", type: "rock", pos: [ 0.6,  2.9], district: "main", variant: 0 },
+  // flowers
+  { id: "f1", type: "flower", pos: [-1.5, -1.8], district: "main", variant: 0 },
+  { id: "f2", type: "flower", pos: [ 1.4, -0.5], district: "main", variant: 1 },
+  { id: "f3", type: "flower", pos: [-0.2,  1.6], district: "main", variant: 2 },
 ];
 
 const initialGoals: Goal[] = [
@@ -130,6 +191,78 @@ const seedChats = (): Record<AgentId, ChatMsg[]> => ({
   jordan: [{ from: "agent", text: "12-day streak baby! 🔥", ts: Date.now() }],
 });
 
+const dist = (a: [number, number], b: [number, number]) =>
+  Math.hypot(a[0] - b[0], a[1] - b[1]);
+
+// Detect which district a world position belongs to
+export const districtAt = (pos: [number, number], districts: District[]): DistrictId | null => {
+  for (const d of districts) {
+    if (!d.unlocked) continue;
+    if (dist(pos, d.center) <= d.radius) return d.id;
+  }
+  return null;
+};
+
+// Compute placement score for a building at pos
+export const scorePlacement = (
+  type: BuildingType,
+  pos: [number, number],
+  buildings: Building[],
+  scenery: Scenery[],
+  districts: District[],
+): { score: number; valid: boolean; reason?: string; breakdown: { label: string; pts: number }[] } => {
+  const opt = BUILD_LIBRARY.find((b) => b.type === type);
+  if (!opt) return { score: 0, valid: false, reason: "Unknown", breakdown: [] };
+
+  // Must be on land of the right district (or any unlocked district for "main"-tagged buildings)
+  const dId = districtAt(pos, districts);
+  if (!dId) return { score: 0, valid: false, reason: "Outside island", breakdown: [] };
+
+  // Building-specific district (lighthouse/dock → beach, cabin → forest, shrine → hill)
+  if (opt.district !== "main" && opt.district !== dId) {
+    return { score: 0, valid: false, reason: `Only fits in ${opt.district}`, breakdown: [] };
+  }
+
+  // Collision check
+  for (const b of buildings) {
+    const other = BUILD_LIBRARY.find((x) => x.type === b.type)!;
+    if (dist(b.pos, pos) < opt.radius + other.radius) {
+      return { score: 0, valid: false, reason: "Too close", breakdown: [] };
+    }
+  }
+
+  // Score by rules
+  const breakdown: { label: string; pts: number }[] = [];
+  let score = 0;
+  const apply = (rules: NonNullable<BuildOption["rules"]["likes"]>, sign: 1 | -1) => {
+    for (const r of rules) {
+      let count = 0;
+      if (r.type === "tree" || r.type === "rock" || r.type === "flower") {
+        count = scenery.filter((s) => s.type === r.type && dist(s.pos, pos) <= r.range).length;
+      } else if (r.type === "water") {
+        // water = anywhere outside any unlocked district
+        const samples = 8;
+        for (let i = 0; i < samples; i++) {
+          const a = (i / samples) * Math.PI * 2;
+          const sp: [number, number] = [pos[0] + Math.cos(a) * r.range, pos[1] + Math.sin(a) * r.range];
+          if (!districtAt(sp, districts)) { count++; break; }
+        }
+      } else {
+        count = buildings.filter((b) => b.type === r.type && dist(b.pos, pos) <= r.range).length;
+      }
+      if (count > 0) {
+        const pts = r.pts * count;
+        score += pts;
+        breakdown.push({ label: `${sign > 0 ? "♥" : "✗"} ${r.type} ×${count}`, pts });
+      }
+    }
+  };
+  if (opt.rules.likes) apply(opt.rules.likes, 1);
+  if (opt.rules.dislikes) apply(opt.rules.dislikes, -1);
+
+  return { score, valid: true, breakdown };
+};
+
 export const GameProvider = ({ children }: { children: ReactNode }) => {
   const [screen, setScreen] = useState<ScreenId>(null);
   const [selectedAgent, setSelectedAgent] = useState<AgentId>("sofia");
@@ -139,8 +272,10 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
   const [xp, setXp] = useState(72);
   const [agents] = useState<Agent[]>(initialAgents);
   const [buildings, setBuildings] = useState<Building[]>(initialBuildings);
+  const [scenery] = useState<Scenery[]>(initialScenery);
+  const [districts, setDistricts] = useState<District[]>(DISTRICTS);
   const [goals, setGoals] = useState<Goal[]>(initialGoals);
-  const [pendingSlot, setPendingSlot] = useState<[number, number] | null>(null);
+  const [placingType, setPlacingType] = useState<BuildingType | null>(null);
   const [pendingCheckIn, setPendingCheckIn] = useState<Goal | null>(null);
   const [chats, setChats] = useState<Record<AgentId, ChatMsg[]>>(seedChats);
   const [toast, setToast] = useState<string | null>(null);
@@ -150,17 +285,32 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
     setTimeout(() => setToast(null), 2400);
   }, []);
 
-  const placeBuilding = useCallback((type: Building["type"]): boolean => {
-    if (!pendingSlot) return false;
-    const opt = BUILD_LIBRARY.find((b) => b.type === type)!;
-    if (opt.locked) { showToast(opt.locked); return false; }
+  const placeBuildingAt = useCallback((pos: [number, number]): boolean => {
+    if (!placingType) return false;
+    const opt = BUILD_LIBRARY.find((b) => b.type === placingType)!;
+    const result = scorePlacement(placingType, pos, buildings, scenery, districts);
+    if (!result.valid) { showToast(result.reason || "Can't place here"); return false; }
     if (coins < opt.cost) { showToast("Not enough coins"); return false; }
+    const dId = districtAt(pos, districts)!;
     setCoins((c) => c - opt.cost);
-    setBuildings((bs) => [...bs, { id: `b${Date.now()}`, type, pos: pendingSlot }]);
-    setPendingSlot(null);
-    showToast(`+1 ${opt.name} built!`);
+    setBuildings((bs) => [...bs, { id: `b${Date.now()}`, type: placingType, pos, district: dId, score: result.score }]);
+    setPlacingType(null);
+    showToast(`+${result.score} harmony · ${opt.name} built!`);
     return true;
-  }, [pendingSlot, coins, showToast]);
+  }, [placingType, buildings, scenery, districts, coins, showToast]);
+
+  const cancelPlacing = useCallback(() => setPlacingType(null), []);
+
+  const unlockDistrict = useCallback((id: DistrictId): boolean => {
+    const d = districts.find((x) => x.id === id);
+    if (!d || d.unlocked) return false;
+    if (level < d.unlockLevel) { showToast(`Need Lv.${d.unlockLevel}`); return false; }
+    if (coins < d.unlockCost) { showToast("Not enough coins"); return false; }
+    setCoins((c) => c - d.unlockCost);
+    setDistricts((ds) => ds.map((x) => x.id === id ? { ...x, unlocked: true } : x));
+    showToast(`${d.emoji} ${d.name} unlocked!`);
+    return true;
+  }, [districts, level, coins, showToast]);
 
   const completeGoal = useCallback((id: string) => {
     setGoals((gs) => gs.map((g) => g.id === id ? { ...g, done: true } : g));
@@ -176,15 +326,8 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
   const sendChat = useCallback((id: AgentId, text: string) => {
     const userMsg: ChatMsg = { from: "you", text, ts: Date.now() };
     setChats((c) => ({ ...c, [id]: [...c[id], userMsg] }));
-    // fake agent reply
     setTimeout(() => {
-      const replies = [
-        "Love it 💚",
-        "Got it — let's do it together!",
-        "I'll cheer you on from the island 🏝️",
-        "That sounds wonderful.",
-        "Mmm okay, I needed that.",
-      ];
+      const replies = ["Love it 💚", "Let's do it together!", "I'll cheer you on 🏝️", "That sounds wonderful.", "Mmm, I needed that."];
       const reply: ChatMsg = { from: "agent", text: replies[Math.floor(Math.random() * replies.length)], ts: Date.now() };
       setChats((c) => ({ ...c, [id]: [...c[id], reply] }));
     }, 900);
@@ -195,8 +338,9 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
       screen, setScreen,
       selectedAgent, setSelectedAgent,
       coins, streak, level, xp,
-      agents, buildings, goals,
-      pendingSlot, setPendingSlot, placeBuilding,
+      agents, buildings, scenery, districts, goals,
+      placingType, setPlacingType, placeBuildingAt, cancelPlacing,
+      unlockDistrict,
       completeGoal, pendingCheckIn, setPendingCheckIn,
       chats, sendChat,
       toast, showToast,
