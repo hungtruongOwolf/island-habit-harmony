@@ -79,26 +79,30 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       keyframes: {
-        "accordion-down": {
-          from: {
-            height: "0",
-          },
-          to: {
-            height: "var(--radix-accordion-content-height)",
-          },
-        },
-        "accordion-up": {
-          from: {
-            height: "var(--radix-accordion-content-height)",
-          },
-          to: {
-            height: "0",
-          },
-        },
+        "accordion-down": { from: { height: "0" }, to: { height: "var(--radix-accordion-content-height)" } },
+        "accordion-up": { from: { height: "var(--radix-accordion-content-height)" }, to: { height: "0" } },
+        "float-y": { "0%,100%": { transform: "translateY(0)" }, "50%": { transform: "translateY(-6px)" } },
+        "float-y-lg": { "0%,100%": { transform: "translateY(0)" }, "50%": { transform: "translateY(-12px)" } },
+        "pulse-ring": { "0%": { transform: "scale(0.9)", opacity: "0.7" }, "100%": { transform: "scale(1.6)", opacity: "0" } },
+        "coin-pop": { "0%": { transform: "translateY(0) scale(1)", opacity: "0" }, "20%": { opacity: "1" }, "100%": { transform: "translateY(-40px) scale(1.2)", opacity: "0" } },
+        "shimmer": { "0%": { backgroundPosition: "-200% 0" }, "100%": { backgroundPosition: "200% 0" } },
+        "ticker": { "0%": { transform: "translateX(0)" }, "100%": { transform: "translateX(-50%)" } },
+        "wobble": { "0%,100%": { transform: "rotate(-2deg)" }, "50%": { transform: "rotate(2deg)" } },
+        "ping-soft": { "0%": { transform: "scale(1)", opacity: "0.6" }, "100%": { transform: "scale(2)", opacity: "0" } },
+        "bob": { "0%,100%": { transform: "translateY(0) rotate(-1deg)" }, "50%": { transform: "translateY(-3px) rotate(1deg)" } },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "float-y": "float-y 4s ease-in-out infinite",
+        "float-y-lg": "float-y-lg 6s ease-in-out infinite",
+        "pulse-ring": "pulse-ring 2s ease-out infinite",
+        "coin-pop": "coin-pop 1.4s ease-out infinite",
+        "shimmer": "shimmer 3s linear infinite",
+        "ticker": "ticker 40s linear infinite",
+        "wobble": "wobble 3s ease-in-out infinite",
+        "ping-soft": "ping-soft 2.4s ease-out infinite",
+        "bob": "bob 2.5s ease-in-out infinite",
       },
     },
   },
