@@ -1,4 +1,4 @@
-import { Home, Hammer, BarChart3, Clock, MessageCircle, Camera } from "lucide-react";
+import { Home, Hammer, BarChart3, MapPin, MessageCircle, Camera } from "lucide-react";
 import { useGame, ScreenId } from "@/game/state";
 
 export const ActionDock = () => {
@@ -8,7 +8,7 @@ export const ActionDock = () => {
     { id: "Island",  icon: Home,           route: null },
     { id: "Build",   icon: Hammer,         route: "build" },
     { id: "Recap",   icon: BarChart3,      route: "recap",   badge: "NEW" },
-    { id: "History", icon: Clock,          route: "history" },
+    { id: "Expand",  icon: MapPin,         route: "expand" },
     { id: "Chat",    icon: MessageCircle,  route: "chat",    badge: "2" },
   ];
 
