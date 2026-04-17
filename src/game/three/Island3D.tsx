@@ -158,22 +158,27 @@ const Scene = () => {
   );
 };
 
-export const Island3D = () => (
-  <Canvas
-    shadows
-    camera={{ position: [6, 5, 6], fov: 45 }}
-    gl={{ antialias: true }}
-  >
-    <Scene />
-    <OrbitControls
-      enablePan={false}
-      minDistance={5}
-      maxDistance={14}
-      minPolarAngle={Math.PI / 6}
-      maxPolarAngle={Math.PI / 2.2}
-      target={[0, 0, 0]}
-      autoRotate
-      autoRotateSpeed={0.4}
-    />
-  </Canvas>
-);
+export const Island3D = () => {
+  const game = useContext(GameCtx);
+  return (
+    <Canvas
+      shadows
+      camera={{ position: [6, 5, 6], fov: 45 }}
+      gl={{ antialias: true }}
+    >
+      <GameCtx.Provider value={game}>
+        <Scene />
+        <OrbitControls
+          enablePan={false}
+          minDistance={5}
+          maxDistance={14}
+          minPolarAngle={Math.PI / 6}
+          maxPolarAngle={Math.PI / 2.2}
+          target={[0, 0, 0]}
+          autoRotate
+          autoRotateSpeed={0.4}
+        />
+      </GameCtx.Provider>
+    </Canvas>
+  );
+};
