@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Html, Float } from "@react-three/drei";
+import { Html } from "@react-three/drei";
 import * as THREE from "three";
 import type { District } from "../state";
 import { useGame } from "../state";
