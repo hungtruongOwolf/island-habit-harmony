@@ -9,56 +9,79 @@ import { SceneryRenderer, GrassTuft } from "./Scenery3D";
 import { DistrictsRenderer } from "./Districts3D";
 import { PlacementGhost } from "./PlacementGhost";
 
-/* ── Animated ocean water ─────────────────────────────── */
+/* ── Animated ocean water with vertex wave displacement ─ */
 const Water = () => {
   const ref = useRef<THREE.Mesh>(null);
   const ref2 = useRef<THREE.Mesh>(null);
+  const originalPositions = useRef<Float32Array | null>(null);
 
-  // Create a subtle wave displacement via vertex shader
+  // Build wave geometry once
+  const waveGeo = useMemo(() => {
+    const geo = new THREE.CircleGeometry(40, 128);
+    originalPositions.current = new Float32Array(geo.attributes.position.array);
+    return geo;
+  }, []);
+
   const waterMat = useMemo(() => {
-    const mat = new THREE.MeshStandardMaterial({
+    return new THREE.MeshStandardMaterial({
       color: new THREE.Color("#3B8EBF"),
       transparent: true,
-      opacity: 0.78,
-      metalness: 0.35,
-      roughness: 0.2,
-      envMapIntensity: 1.2,
+      opacity: 0.82,
+      metalness: 0.4,
+      roughness: 0.18,
+      envMapIntensity: 1.3,
+      flatShading: false,
     });
-    return mat;
   }, []);
 
   useFrame(({ clock }) => {
-    if (ref.current) {
-      const t = clock.elapsedTime;
-      ref.current.position.y = -0.72 + Math.sin(t * 0.6) * 0.015;
-      waterMat.opacity = 0.72 + Math.sin(t * 0.8) * 0.04;
+    const t = clock.elapsedTime;
+    if (ref.current && originalPositions.current) {
+      const pos = ref.current.geometry.attributes.position;
+      const orig = originalPositions.current;
+      for (let i = 0; i < pos.count; i++) {
+        const x = orig[i * 3];
+        const y = orig[i * 3 + 1];
+        // Multi-octave wave
+        const wave1 = Math.sin(x * 0.5 + t * 1.2) * 0.08;
+        const wave2 = Math.cos(y * 0.4 + t * 0.9) * 0.06;
+        const wave3 = Math.sin((x + y) * 0.3 + t * 1.5) * 0.04;
+        pos.setZ(i, wave1 + wave2 + wave3);
+      }
+      pos.needsUpdate = true;
+      ref.current.geometry.computeVertexNormals();
     }
     if (ref2.current) {
-      ref2.current.rotation.z = clock.elapsedTime * 0.02;
+      ref2.current.rotation.z = t * 0.02;
     }
   });
 
   return (
     <group>
       {/* Deep ocean floor */}
-      <mesh position={[0, -2.5, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <circleGeometry args={[40, 64]} />
-        <meshStandardMaterial color="#1A3A52" />
+      <mesh position={[0, -2.8, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <circleGeometry args={[45, 64]} />
+        <meshStandardMaterial color="#152838" />
       </mesh>
       {/* Mid-depth water */}
-      <mesh position={[0, -1.2, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <circleGeometry args={[35, 64]} />
-        <meshStandardMaterial color="#2A5A78" transparent opacity={0.9} />
+      <mesh position={[0, -1.4, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <circleGeometry args={[40, 64]} />
+        <meshStandardMaterial color="#214860" transparent opacity={0.92} />
       </mesh>
-      {/* Surface water */}
-      <mesh ref={ref} position={[0, -0.72, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-        <circleGeometry args={[32, 96]} />
+      {/* Surface water — vertex-animated */}
+      <mesh
+        ref={ref}
+        position={[0, -0.5, 0]}
+        rotation={[-Math.PI / 2, 0, 0]}
+        receiveShadow
+        geometry={waveGeo}
+      >
         <primitive object={waterMat} attach="material" />
       </mesh>
       {/* Caustic shimmer layer */}
-      <mesh ref={ref2} position={[0, -0.7, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[0, 18, 64, 4]} />
-        <meshBasicMaterial color="#8BD4F0" transparent opacity={0.06} blending={THREE.AdditiveBlending} />
+      <mesh ref={ref2} position={[0, -0.48, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <ringGeometry args={[0, 22, 64, 4]} />
+        <meshBasicMaterial color="#8BD4F0" transparent opacity={0.08} blending={THREE.AdditiveBlending} />
       </mesh>
     </group>
   );
@@ -235,11 +258,11 @@ export const Island3D = () => {
   return (
     <Canvas
       shadows
-      camera={{ position: [9, 7, 9], fov: 40, near: 0.5, far: 60 }}
+      camera={{ position: [11, 9, 11], fov: 42, near: 0.5, far: 70 }}
       gl={{
         antialias: true,
         toneMapping: THREE.ACESFilmicToneMapping,
-        toneMappingExposure: 1.1,
+        toneMappingExposure: 1.15,
       }}
       dpr={[1, 1.5]}
     >
@@ -247,13 +270,13 @@ export const Island3D = () => {
         <Scene />
         <OrbitControls
           enablePan={false}
-          minDistance={5}
-          maxDistance={18}
+          minDistance={6}
+          maxDistance={22}
           minPolarAngle={Math.PI / 6}
           maxPolarAngle={Math.PI / 2.3}
-          target={[0, 0.3, 0]}
+          target={[0, 0.5, 0]}
           autoRotate
-          autoRotateSpeed={0.25}
+          autoRotateSpeed={0.22}
           enableDamping
           dampingFactor={0.08}
         />
