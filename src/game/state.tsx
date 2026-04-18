@@ -7,7 +7,7 @@ import a5 from "@/assets/agent-5.png";
 
 export type AgentId = "kael" | "theo" | "mei" | "jordan" | "sofia";
 export type ScreenId = "island" | "build" | "chat" | "recap" | "history" | "checkin" | "expand" | null;
-export type BuildingType = "house" | "garden" | "library" | "gym" | "lighthouse" | "fountain" | "bonfire" | "cabin" | "dock" | "shrine";
+export type BuildingType = "house" | "garden" | "library" | "gym" | "lighthouse" | "fountain" | "bonfire" | "cabin" | "dock" | "shrine" | "windmill" | "treehouse";
 export type DistrictId = "main" | "forest" | "beach" | "hill";
 
 export interface Agent {
@@ -76,6 +76,12 @@ export const BUILD_LIBRARY: BuildOption[] = [
     rules: { likes: [{ type: "water", range: 2, pts: 6 }] } },
   { type: "shrine", name: "Hill shrine", cost: 320, radius: 0.55, emoji: "⛩️", district: "hill",
     rules: { likes: [{ type: "tree", range: 2, pts: 3 }, { type: "rock", range: 2, pts: 3 }] } },
+  { type: "windmill", name: "Windmill", cost: 360, radius: 0.65, emoji: "🌬️", district: "main",
+    rules: { likes: [{ type: "garden", range: 2.5, pts: 5 }, { type: "house", range: 2.5, pts: 3 }],
+             dislikes: [{ type: "library", range: 2, pts: -2 }] } },
+  { type: "treehouse", name: "Treehouse", cost: 280, radius: 0.55, emoji: "🌳", district: "main",
+    rules: { likes: [{ type: "tree", range: 1.2, pts: 6 }, { type: "flower", range: 1.5, pts: 2 }],
+             dislikes: [{ type: "bonfire", range: 1.5, pts: -4 }] } },
 ];
 
 export interface District {
@@ -93,10 +99,10 @@ export interface District {
 }
 
 export const DISTRICTS: District[] = [
-  { id: "main",   name: "Pine Hollow",     emoji: "🏝️", unlocked: true,  unlockCost: 0,    unlockLevel: 0,  center: [0, 0],     radius: 3.6, color: "#7AB85A", description: "Your starting island — grass and gentle hills." },
-  { id: "forest", name: "Whispering Wood", emoji: "🌲", unlocked: false, unlockCost: 600,  unlockLevel: 12, center: [-6, -1],   radius: 2.6, color: "#3F7A3F", description: "Dense pines & moss. Unlocks forest cabins." },
-  { id: "beach",  name: "Coral Cove",      emoji: "🏖️", unlocked: false, unlockCost: 900,  unlockLevel: 14, center: [5.5, 1.5], radius: 2.8, color: "#EFD9A8", description: "Warm sand & shallow water. Unlocks docks & lighthouse." },
-  { id: "hill",   name: "Stoneview Peak",  emoji: "⛰️", unlocked: false, unlockCost: 1400, unlockLevel: 16, center: [1, 6],     radius: 2.4, color: "#9B8E7E", description: "Rocky highland with old shrines." },
+  { id: "main",   name: "Pine Hollow",     emoji: "🏝️", unlocked: true,  unlockCost: 0,    unlockLevel: 0,  center: [0, 0],     radius: 4.8, color: "#7AB85A", description: "Your starting island — grass and gentle hills." },
+  { id: "forest", name: "Whispering Wood", emoji: "🌲", unlocked: false, unlockCost: 600,  unlockLevel: 12, center: [-7.8, -1.5], radius: 3.4, color: "#3F7A3F", description: "Dense pines & moss. Unlocks forest cabins." },
+  { id: "beach",  name: "Coral Cove",      emoji: "🏖️", unlocked: false, unlockCost: 900,  unlockLevel: 14, center: [7.2, 2.0], radius: 3.6, color: "#EFD9A8", description: "Warm sand & shallow water. Unlocks docks & lighthouse." },
+  { id: "hill",   name: "Stoneview Peak",  emoji: "⛰️", unlocked: false, unlockCost: 1400, unlockLevel: 16, center: [1.5, 7.8],   radius: 3.2, color: "#9B8E7E", description: "Rocky highland with old shrines." },
 ];
 
 export interface Goal { id: string; text: string; done: boolean; reward: number; photo?: boolean; }
