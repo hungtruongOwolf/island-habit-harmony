@@ -450,8 +450,8 @@ const Windmill = ({ bladesRef }: { bladesRef: React.RefObject<THREE.Group> }) =>
       <meshStandardMaterial color="#5A3820" roughness={0.8} flatShading />
     </mesh>
     {/* Hub for blades */}
-    <mesh position={[0, 1.15, 0.35]} castShadow>
-      <cylinderGeometry args={[0.06, 0.06, 0.12, 12]} rotation={[Math.PI / 2, 0, 0]} />
+    <mesh position={[0, 1.15, 0.35]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+      <cylinderGeometry args={[0.06, 0.06, 0.12, 12]} />
       <meshStandardMaterial color="#3A2818" />
     </mesh>
     {/* Rotating blades */}
