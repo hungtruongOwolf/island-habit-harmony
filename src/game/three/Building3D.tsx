@@ -10,8 +10,24 @@ export const Building3D = ({ building }: Props) => {
   const flameRef = useRef<THREE.Mesh>(null);
   const lightRef = useRef<THREE.Mesh>(null);
   const smokeRef = useRef<THREE.Mesh>(null);
+  const bladesRef = useRef<THREE.Group>(null);
+  const flagRef = useRef<THREE.Mesh>(null);
+  const groupRef = useRef<THREE.Group>(null);
+  const mountTime = useMemo(() => performance.now(), []);
 
   useFrame(({ clock }) => {
+    // Pop-in elastic on first appearance
+    if (groupRef.current) {
+      const elapsed = (performance.now() - mountTime) / 1000;
+      if (elapsed < 0.7) {
+        const t = elapsed / 0.7;
+        const eased = 1 - Math.pow(1 - t, 3);
+        const overshoot = Math.sin(t * Math.PI * 2) * (1 - t) * 0.15;
+        groupRef.current.scale.setScalar(eased + overshoot);
+      } else {
+        groupRef.current.scale.setScalar(1);
+      }
+    }
     if (type === "bonfire" && flameRef.current) {
       const s = 0.9 + Math.sin(clock.elapsedTime * 8) * 0.15;
       flameRef.current.scale.set(s, s * 1.3, s);
@@ -19,16 +35,23 @@ export const Building3D = ({ building }: Props) => {
     if (type === "lighthouse" && lightRef.current) {
       lightRef.current.rotation.y = clock.elapsedTime * 1.5;
     }
+    if (type === "windmill" && bladesRef.current) {
+      bladesRef.current.rotation.z = clock.elapsedTime * 0.8;
+    }
     if ((type === "house" || type === "cabin") && smokeRef.current) {
       smokeRef.current.position.y = 1.2 + (clock.elapsedTime % 2) * 0.3;
       const m = smokeRef.current.material as THREE.MeshStandardMaterial;
       m.opacity = 0.5 - (clock.elapsedTime % 2) * 0.25;
     }
+    if (type === "house" && flagRef.current) {
+      flagRef.current.rotation.y = Math.sin(clock.elapsedTime * 4) * 0.3;
+      flagRef.current.scale.x = 1 + Math.sin(clock.elapsedTime * 5) * 0.06;
+    }
   });
 
   return (
-    <group position={[pos[0], 0, pos[1]]} rotation={[0, rot, 0]}>
-      {type === "house" && <House smokeRef={smokeRef} />}
+    <group ref={groupRef} position={[pos[0], 0, pos[1]]} rotation={[0, rot, 0]}>
+      {type === "house" && <House smokeRef={smokeRef} flagRef={flagRef} />}
       {type === "garden" && <Garden />}
       {type === "library" && <Library />}
       {type === "gym" && <Gym />}
@@ -38,6 +61,8 @@ export const Building3D = ({ building }: Props) => {
       {type === "cabin" && <Cabin smokeRef={smokeRef} />}
       {type === "dock" && <Dock />}
       {type === "shrine" && <Shrine />}
+      {type === "windmill" && <Windmill bladesRef={bladesRef} />}
+      {type === "treehouse" && <Treehouse />}
     </group>
   );
 };
