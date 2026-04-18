@@ -67,14 +67,12 @@ export const Building3D = ({ building }: Props) => {
   );
 };
 
-const House = ({ smokeRef }: { smokeRef: React.RefObject<THREE.Mesh> }) => (
+const House = ({ smokeRef, flagRef }: { smokeRef: React.RefObject<THREE.Mesh>; flagRef: React.RefObject<THREE.Mesh> }) => (
   <group>
-    {/* Foundation */}
     <mesh position={[0, 0.05, 0]} receiveShadow>
       <boxGeometry args={[0.95, 0.1, 0.95]} />
       <meshStandardMaterial color="#9B8E7E" />
     </mesh>
-    {/* Walls */}
     <mesh position={[0, 0.4, 0]} castShadow receiveShadow>
       <boxGeometry args={[0.85, 0.7, 0.85]} />
       <meshStandardMaterial color="#F4E1C1" />
@@ -90,6 +88,17 @@ const House = ({ smokeRef }: { smokeRef: React.RefObject<THREE.Mesh> }) => (
     <mesh position={[-0.25, 0.45, 0.44]}>
       <boxGeometry args={[0.02, 0.2, 0.005]} /><meshStandardMaterial color="#5A4226" />
     </mesh>
+    {/* Window planter with flowers */}
+    <mesh position={[-0.25, 0.32, 0.46]} castShadow>
+      <boxGeometry args={[0.22, 0.06, 0.06]} />
+      <meshStandardMaterial color="#6B4226" />
+    </mesh>
+    {[-0.32, -0.25, -0.18].map((x, i) => (
+      <mesh key={i} position={[x, 0.37, 0.46]}>
+        <sphereGeometry args={[0.025, 6, 6]} />
+        <meshStandardMaterial color={["#E58F7B", "#F2C46C", "#C9A0E0"][i]} />
+      </mesh>
+    ))}
     {/* Door */}
     <mesh position={[0.18, 0.32, 0.43]}>
       <boxGeometry args={[0.18, 0.42, 0.02]} />
@@ -103,17 +112,24 @@ const House = ({ smokeRef }: { smokeRef: React.RefObject<THREE.Mesh> }) => (
       <coneGeometry args={[0.75, 0.55, 4]} />
       <meshStandardMaterial color="#C5523A" />
     </mesh>
-    {/* Chimney */}
+    {/* Flag pole + animated flag */}
+    <mesh position={[0, 1.3, 0]} castShadow>
+      <cylinderGeometry args={[0.012, 0.012, 0.35, 6]} />
+      <meshStandardMaterial color="#3A2818" />
+    </mesh>
+    <mesh ref={flagRef} position={[0.08, 1.38, 0]}>
+      <planeGeometry args={[0.16, 0.1]} />
+      <meshStandardMaterial color="#D9433A" side={THREE.DoubleSide} />
+    </mesh>
+    {/* Chimney + smoke */}
     <mesh position={[0.25, 1.0, -0.15]} castShadow>
       <boxGeometry args={[0.1, 0.25, 0.1]} />
       <meshStandardMaterial color="#5A4A38" />
     </mesh>
-    {/* Smoke */}
     <mesh ref={smokeRef} position={[0.25, 1.2, -0.15]}>
       <sphereGeometry args={[0.08, 8, 8]} />
       <meshStandardMaterial color="#E0E0E0" transparent opacity={0.5} />
     </mesh>
-    {/* Porch step */}
     <mesh position={[0.18, 0.07, 0.5]}>
       <boxGeometry args={[0.22, 0.05, 0.1]} />
       <meshStandardMaterial color="#6B4226" />
