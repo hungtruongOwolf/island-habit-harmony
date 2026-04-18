@@ -409,3 +409,162 @@ const Shrine = () => (
     </mesh>
   </group>
 );
+
+/* ── Windmill — rotating blades, classic Dutch ──────── */
+const Windmill = ({ bladesRef }: { bladesRef: React.RefObject<THREE.Group> }) => (
+  <group>
+    {/* Stone base */}
+    <mesh position={[0, 0.1, 0]} receiveShadow castShadow>
+      <cylinderGeometry args={[0.45, 0.55, 0.2, 16]} />
+      <meshStandardMaterial color="#7A6B5A" roughness={0.9} flatShading />
+    </mesh>
+    {/* Tapered tower */}
+    <mesh position={[0, 0.75, 0]} castShadow receiveShadow>
+      <cylinderGeometry args={[0.32, 0.45, 1.1, 16]} />
+      <meshStandardMaterial color="#F4E1C1" roughness={0.85} />
+    </mesh>
+    {/* Wood beam stripes */}
+    {[0.4, 0.7, 1.0].map((y) => (
+      <mesh key={y} position={[0, y, 0]}>
+        <cylinderGeometry args={[
+          0.45 - (y - 0.2) * 0.118,
+          0.45 - (y - 0.2) * 0.118,
+          0.04, 16
+        ]} />
+        <meshStandardMaterial color="#8B6B4A" roughness={0.9} />
+      </mesh>
+    ))}
+    {/* Door */}
+    <mesh position={[0, 0.35, 0.43]}>
+      <boxGeometry args={[0.18, 0.4, 0.02]} />
+      <meshStandardMaterial color="#5A3820" />
+    </mesh>
+    {/* Window */}
+    <mesh position={[0, 0.85, 0.4]}>
+      <boxGeometry args={[0.14, 0.14, 0.02]} />
+      <meshStandardMaterial color="#F2C46C" emissive="#F2C46C" emissiveIntensity={0.5} />
+    </mesh>
+    {/* Conical roof cap */}
+    <mesh position={[0, 1.42, 0]} castShadow>
+      <coneGeometry args={[0.36, 0.32, 12]} />
+      <meshStandardMaterial color="#5A3820" roughness={0.8} flatShading />
+    </mesh>
+    {/* Hub for blades */}
+    <mesh position={[0, 1.15, 0.35]} castShadow>
+      <cylinderGeometry args={[0.06, 0.06, 0.12, 12]} rotation={[Math.PI / 2, 0, 0]} />
+      <meshStandardMaterial color="#3A2818" />
+    </mesh>
+    {/* Rotating blades */}
+    <group ref={bladesRef} position={[0, 1.15, 0.4]}>
+      {[0, 1, 2, 3].map((i) => {
+        const angle = (i / 4) * Math.PI * 2;
+        return (
+          <group key={i} rotation={[0, 0, angle]}>
+            {/* Blade arm */}
+            <mesh position={[0, 0.4, 0]} castShadow>
+              <boxGeometry args={[0.04, 0.8, 0.03]} />
+              <meshStandardMaterial color="#5A3820" roughness={0.85} />
+            </mesh>
+            {/* Sail (cloth) */}
+            <mesh position={[0.1, 0.5, 0]} castShadow>
+              <boxGeometry args={[0.18, 0.45, 0.005]} />
+              <meshStandardMaterial color="#F4E8D9" side={THREE.DoubleSide} roughness={0.7} />
+            </mesh>
+            {/* Cross slats on sail */}
+            {[0.35, 0.55, 0.7].map((y) => (
+              <mesh key={y} position={[0.1, y, 0.005]}>
+                <boxGeometry args={[0.18, 0.008, 0.002]} />
+                <meshStandardMaterial color="#8B6B4A" />
+              </mesh>
+            ))}
+          </group>
+        );
+      })}
+    </group>
+  </group>
+);
+
+/* ── Treehouse — built into a big oak ──────────────── */
+const Treehouse = () => (
+  <group>
+    {/* Big trunk */}
+    <mesh position={[0, 0.5, 0]} castShadow receiveShadow>
+      <cylinderGeometry args={[0.16, 0.22, 1.0, 8]} />
+      <meshStandardMaterial color="#5A3820" roughness={0.92} flatShading />
+    </mesh>
+    {/* Side branch supports */}
+    {[-0.3, 0.3].map((x) => (
+      <mesh key={x} position={[x, 0.6, 0]} rotation={[0, 0, x > 0 ? -0.6 : 0.6]}>
+        <cylinderGeometry args={[0.04, 0.05, 0.35, 6]} />
+        <meshStandardMaterial color="#5A3820" roughness={0.9} />
+      </mesh>
+    ))}
+    {/* Wood platform */}
+    <mesh position={[0, 0.85, 0]} castShadow receiveShadow>
+      <cylinderGeometry args={[0.55, 0.55, 0.06, 16]} />
+      <meshStandardMaterial color="#8B6B4A" roughness={0.85} />
+    </mesh>
+    {/* Plank seams on platform */}
+    {[-0.3, -0.1, 0.1, 0.3].map((x) => (
+      <mesh key={x} position={[x, 0.89, 0]}>
+        <boxGeometry args={[0.015, 0.005, 1.0]} />
+        <meshStandardMaterial color="#5A3820" />
+      </mesh>
+    ))}
+    {/* Cabin walls */}
+    <mesh position={[0, 1.15, 0]} castShadow receiveShadow>
+      <boxGeometry args={[0.7, 0.5, 0.7]} />
+      <meshStandardMaterial color="#A87A4E" roughness={0.85} />
+    </mesh>
+    {/* Window */}
+    <mesh position={[0, 1.2, 0.36]}>
+      <boxGeometry args={[0.2, 0.2, 0.02]} />
+      <meshStandardMaterial color="#F2C46C" emissive="#F2C46C" emissiveIntensity={0.6} />
+    </mesh>
+    {/* Door (side) */}
+    <mesh position={[0.36, 1.1, 0]}>
+      <boxGeometry args={[0.02, 0.32, 0.18]} />
+      <meshStandardMaterial color="#3A2818" />
+    </mesh>
+    {/* Slanted roof */}
+    <mesh position={[0, 1.55, 0]} rotation={[0, Math.PI / 4, 0]} castShadow>
+      <coneGeometry args={[0.6, 0.45, 4]} />
+      <meshStandardMaterial color="#3F7A3F" roughness={0.78} />
+    </mesh>
+    {/* Foliage around treehouse */}
+    {[
+      [0.6, 1.1, 0.3, 0.3],
+      [-0.55, 1.2, -0.2, 0.28],
+      [0.2, 1.4, -0.55, 0.32],
+      [-0.4, 1.5, 0.45, 0.26],
+    ].map(([x, y, z, r], i) => (
+      <mesh key={i} position={[x, y, z]} castShadow>
+        <sphereGeometry args={[r, 12, 10]} />
+        <meshStandardMaterial color={i % 2 ? "#4A8548" : "#5A9A55"} roughness={0.75} flatShading />
+      </mesh>
+    ))}
+    {/* Rope ladder */}
+    {[0.05, 0.15, 0.25, 0.35, 0.5, 0.65].map((y, i) => (
+      <mesh key={i} position={[-0.5, y, 0.1]}>
+        <boxGeometry args={[0.12, 0.015, 0.015]} />
+        <meshStandardMaterial color="#6B4226" />
+      </mesh>
+    ))}
+    {/* Rope sides */}
+    <mesh position={[-0.56, 0.4, 0.1]}>
+      <cylinderGeometry args={[0.008, 0.008, 0.85, 4]} />
+      <meshStandardMaterial color="#3A2818" />
+    </mesh>
+    <mesh position={[-0.44, 0.4, 0.1]}>
+      <cylinderGeometry args={[0.008, 0.008, 0.85, 4]} />
+      <meshStandardMaterial color="#3A2818" />
+    </mesh>
+    {/* Lantern hanging */}
+    <mesh position={[0.4, 1.35, 0.4]}>
+      <boxGeometry args={[0.08, 0.1, 0.08]} />
+      <meshStandardMaterial color="#F4D87C" emissive="#F4D87C" emissiveIntensity={0.7} />
+    </mesh>
+    <pointLight position={[0.4, 1.35, 0.4]} color="#F4D87C" intensity={0.4} distance={1.8} />
+  </group>
+);
+
